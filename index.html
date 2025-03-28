@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProStream | ProSearchBots</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0f172a;
+        }
+        .emoji-wave {
+            animation: wave 2s infinite;
+            display: inline-block;
+        }
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            50% { transform: rotate(-10deg); }
+        }
+        .video-container {
+            transition: all 0.3s ease;
+        }
+        .video-container:hover {
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+        }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen flex flex-col">
+    <header class="bg-indigo-900/50 py-4 px-6 border-b border-indigo-800">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="emoji-wave text-3xl">📡</span>
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
+                    ProStream
+                </h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="emoji-wave text-xl">🤖</span>
+                <span class="text-sm font-medium">by ProSearchBots</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8 flex flex-col items-center">
+        <div class="w-full max-w-3xl mb-8">
+            <div class="flex items-center bg-indigo-900/30 rounded-lg p-1 border border-indigo-800">
+                <input 
+                    type="text" 
+                    id="streamUrl" 
+                    placeholder="Paste your stream URL here..." 
+                    class="flex-grow bg-transparent px-4 py-3 focus:outline-none"
+                >
+                <button 
+                    id="playBtn"
+                    class="bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-md font-medium transition-colors flex items-center"
+                >
+                    <span class="emoji-wave mr-2">🎬</span> Play Stream
+                </button>
+            </div>
+        </div>
+
+        <div class="w-full max-w-4xl video-container bg-black rounded-xl overflow-hidden relative">
+            <video 
+                id="videoPlayer" 
+                class="w-full" 
+                controls
+                autoplay
+            >
+                Your browser does not support the video tag.
+            </video>
+            <div id="placeholder" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/80">
+                <span class="emoji-wave text-6xl mb-4">📺</span>
+                <p class="text-xl font-medium">Waiting for stream...</p>
+                <p class="text-sm text-gray-400 mt-2">Paste a URL above to start streaming</p>
+            </div>
+        </div>
+
+        <div class="mt-8 flex space-x-4">
+            <div class="bg-indigo-900/20 p-4 rounded-lg text-center">
+                <span class="emoji-wave text-3xl block mb-2">⚡</span>
+                <h3 class="font-medium">Lightning Fast</h3>
+                <p class="text-sm text-gray-400">Instant stream loading</p>
+            </div>
+            <div class="bg-indigo-900/20 p-4 rounded-lg text-center">
+                <span class="emoji-wave text-3xl block mb-2">🔒</span>
+                <h3 class="font-medium">Secure</h3>
+                <p class="text-sm text-gray-400">Private streaming</p>
+            </div>
+            <div class="bg-indigo-900/20 p-4 rounded-lg text-center">
+                <span class="emoji-wave text-3xl block mb-2">🎚️</span>
+                <h3 class="font-medium">Advanced Controls</h3>
+                <p class="text-sm text-gray-400">Full customization</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-indigo-900/30 py-4 px-6 border-t border-indigo-800">
+        <div class="container mx-auto text-center text-sm text-gray-400">
+            <p>© 2023 ProSearchBots | <span class="emoji-wave">🚀</span> Next-gen streaming technology</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
