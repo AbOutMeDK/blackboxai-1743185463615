@@ -1,0 +1,61 @@
+/* Additional custom styles */
+#streamUrl::placeholder {
+    color: #94a3b8;
+    opacity: 0.7;
+}
+
+#videoPlayer {
+    aspect-ratio: 16/9;
+}
+
+#placeholder {
+    transition: opacity 0.3s ease;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #6366f1;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .video-container {
+        border-radius: 0;
+    }
+    
+    #streamUrl {
+        padding: 2.5rem 1rem;
+        font-size: 1rem;
+    }
+    
+    .feature-box {
+        padding: 1rem;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #6366f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4f46e5;
+}
