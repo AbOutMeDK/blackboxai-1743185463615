@@ -3,9 +3,9 @@
 
 // Wait for DOM and Video.js to be fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if player already exists to prevent duplicate initialization
-    if (window.playerInitialized) return;
-    window.playerInitialized = true;
+    // Only initialize if player element exists and hasn't been initialized
+    const playerEl = document.getElementById('prostream-player');
+    if (!playerEl || playerEl.classList.contains('vjs-initialized')) return;
 
     try {
         // Initialize Video.js player with error handling
@@ -15,10 +15,15 @@ document.addEventListener('DOMContentLoaded', () => {
             preload: 'auto',
             responsive: true,
             fluid: true,
+            techOrder: ['html5', 'flash'], // Fallback to flash if needed
             html5: {
                 vhs: {
-                    overrideNative: true
-                }
+                    overrideNative: true,
+                    enableLowInitialPlaylist: true,
+                    useDevicePixelRatio: true
+                },
+                nativeAudioTracks: false,
+                nativeVideoTracks: false
             }
         });
 
@@ -28,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Player initialization failed:', error);
         showNotification('Video player failed to initialize', 'error');
     }
-});
+}, { once: true }); // Only run this once
 
 function setupPlayerFeatures(player) {
     // DOM Elements
@@ -59,18 +64,26 @@ function setupPlayerFeatures(player) {
 }
 
 function initializePlugins(player) {
-    // Quality Levels plugin
-    if (typeof player.qualityLevels === 'function') {
-        try {
-            player.qualityLevels();
+    // Only initialize plugins once
+    if (player.pluginsInitialized) return;
+    player.pluginsInitialized = true;
+
+    try {
+        // Quality Levels plugin
+        if (typeof player.qualityLevels === 'function' && 
+            !player.qualityLevels) {
+            const qualityLevels = player.qualityLevels();
+            
             if (typeof player.hlsQualitySelector === 'function') {
                 player.hlsQualitySelector({
                     displayCurrentQuality: true,
+                    vjsIconClass: 'vjs-icon-cog'
                 });
             }
-        } catch (error) {
-            console.warn('Quality plugin initialization failed:', error);
         }
+    } catch (error) {
+        console.warn('Plugin initialization failed:', error);
+        showNotification('Some features may not be available', 'warning');
     }
 }
 
@@ -79,15 +92,22 @@ function setupEventListeners(player, ui) {
     const playStream = () => {
         const streamUrl = ui.streamUrl.value.trim();
         
+        // Show loading state immediately
+        ui.loadingOverlay.classList.remove('hidden');
+        showNotification('Loading stream...', 'info');
+
         if (!streamUrl) {
+            ui.loadingOverlay.classList.add('hidden');
             showNotification('Please enter a valid stream URL', 'error');
             return;
         }
 
-        ui.loadingOverlay.classList.remove('hidden');
-        
         try {
-            player.src({ src: streamUrl, type: 'application/x-mpegURL' });
+            player.src({ 
+                src: streamUrl, 
+                type: getStreamType(streamUrl)
+            });
+
             player.ready(() => {
                 player.play()
                     .then(() => {
@@ -96,18 +116,44 @@ function setupEventListeners(player, ui) {
                     })
                     .catch(error => {
                         ui.loadingOverlay.classList.add('hidden');
-                        showNotification(`Playback error: ${error.message}`, 'error');
+                        const msg = error.message.includes('HLS') ? 
+                            'HLS stream error - check URL or try another stream' :
+                            `Playback error: ${error.message}`;
+                        showNotification(msg, 'error');
                     });
+            });
+
+            // Handle HLS-specific errors
+            player.on('error', () => {
+                const error = player.error();
+                if (error && error.message.includes('HLS')) {
+                    showNotification('HLS playlist request failed', 'error');
+                }
             });
         } catch (error) {
             ui.loadingOverlay.classList.add('hidden');
-            showNotification('Error loading stream', 'error');
+            let errorMsg = `Error: ${error.message}`;
+            if (streamUrl.includes('.mkv')) {
+                errorMsg += '. Note: MKV support requires proper codecs. Try converting to MP4 if issues persist.';
+            }
+            showNotification(errorMsg, 'error');
         }
     };
 
     // Core event listeners
+    // Auto-play when URL changes (with debounce)
+    let playTimeout;
+    ui.streamUrl.addEventListener('input', () => {
+        clearTimeout(playTimeout);
+        if (ui.streamUrl.value.trim()) {
+            playTimeout = setTimeout(playStream, 800);
+        }
+    });
+    
     ui.playBtn.addEventListener('click', playStream);
-    ui.streamUrl.addEventListener('keypress', (e) => e.key === 'Enter' && playStream());
+    ui.streamUrl.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') playStream();
+    });
 
     // Settings panel
     ui.settingsToggle.addEventListener('click', () => 
@@ -157,6 +203,24 @@ function updateThemeIcon(button) {
         icon?.classList.replace('fa-sun', 'fa-moon');
     } else {
         icon?.classList.replace('fa-moon', 'fa-sun');
+    }
+}
+
+function getStreamType(url) {
+    const extension = url.split('.').pop().toLowerCase();
+    switch(extension) {
+        case 'm3u8': return 'application/x-mpegURL';
+        case 'mpd': return 'application/dash+xml';
+        case 'mp4': return 'video/mp4';
+        case 'mkv': 
+            // Try different MKV MIME type variations
+            if (MediaSource.isTypeSupported('video/x-matroska;codecs="avc1.42E01E,mp4a.40.2"')) {
+                return 'video/x-matroska;codecs="avc1.42E01E,mp4a.40.2"';
+            }
+            return 'video/x-matroska';
+        case 'avi': return 'video/x-msvideo';
+        case 'webm': return 'video/webm';
+        default: return 'video/*';
     }
 }
 
