@@ -8,22 +8,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!playerEl || playerEl.classList.contains('vjs-initialized')) return;
 
     try {
-        // Initialize Video.js player with error handling
+        // Initialize Video.js player with simpler configuration
         const player = videojs('prostream-player', {
             controls: true,
             autoplay: false,
             preload: 'auto',
             responsive: true,
             fluid: true,
-            techOrder: ['html5', 'flash'], // Fallback to flash if needed
             html5: {
                 vhs: {
-                    overrideNative: true,
-                    enableLowInitialPlaylist: true,
-                    useDevicePixelRatio: true
-                },
-                nativeAudioTracks: false,
-                nativeVideoTracks: false
+                    overrideNative: true
+                }
             }
         });
 
