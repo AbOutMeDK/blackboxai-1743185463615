@@ -211,21 +211,40 @@ function updateThemeIcon(button) {
 
 function getStreamType(url) {
     const extension = url.split('.').pop().toLowerCase();
-    switch(extension) {
-        case 'm3u8': return 'application/x-mpegURL';
-        case 'mpd': return 'application/dash+xml';
-        case 'mp4': return 'video/mp4';
-        case 'mkv': 
-            // Try different MKV MIME type variations
-            if (MediaSource.isTypeSupported('video/x-matroska;codecs="avc1.42E01E,mp4a.40.2"')) {
-                return 'video/x-matroska;codecs="avc1.42E01E,mp4a.40.2"';
-            }
-            return 'video/x-matroska';
-        case 'avi': return 'video/x-msvideo';
-        case 'webm': return 'video/webm';
-        default: return 'video/*';
-    }
+    const mimeTypes = {
+        'm3u8': 'application/x-mpegURL',
+        'mpd': 'application/dash+xml',
+        'mp4': 'video/mp4',
+        'mkv': getMatroskaMimeType(),
+        'avi': 'video/x-msvideo',
+        'webm': 'video/webm',
+        'mov': 'video/quicktime'
+    };
+    
+    return mimeTypes[extension] || 'video/*';
 }
+
+function getMatroskaMimeType() {
+    // Test common MKV codec combinations
+    const codecs = [
+        'video/x-matroska;codecs="avc1.42E01E,mp4a.40.2"',
+        'video/x-matroska;codecs="avc1.64001f,mp4a.40.2"',
+        'video/x-matroska'
+    ];
+    
+    for (const codec of codecs) {
+        if (MediaSource.isTypeSupported(codec)) {
+            return codec;
+        }
+    }
+    return 'video/x-matroska';
+}
+
+function canPlayType(type) {
+    const video = document.createElement('video');
+    return video.canPlayType(type) !== '';
+}
+
 
 function showNotification(message, type) {
     const notification = document.createElement('div');
