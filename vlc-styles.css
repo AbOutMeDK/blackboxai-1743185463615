@@ -1,0 +1,44 @@
+/* VLC-like Player Styles */
+#playBtn {
+  display: none !important;
+}
+:root {
+  --vlc-orange: #ff8800;
+  --vlc-dark: #2b2b2b;
+  --vlc-darker: #1a1a1a;
+}
+
+.video-js {
+  background-color: var(--vlc-darker) !important;
+}
+
+.vjs-control-bar {
+  background: linear-gradient(to bottom, var(--vlc-dark), var(--vlc-darker)) !important;
+  height: 40px !important;
+  padding: 0 10px !important;
+}
+
+.vjs-progress-control {
+  background-color: rgba(0,0,0,0.3) !important;
+}
+
+.vjs-play-progress {
+  background-color: var(--vlc-orange) !important;
+}
+
+.vjs-play-control .vjs-icon-placeholder:before {
+  color: var(--vlc-orange) !important;
+}
+
+.vjs-volume-level {
+  background-color: var(--vlc-orange) !important;
+}
+
+.vjs-progress-holder {
+  margin: 0 10px !important;
+}
+
+.vjs-big-play-button {
+  border-color: var(--vlc-orange) !important;
+  background-color: rgba(43,43,43,0.7) !important;
+}
