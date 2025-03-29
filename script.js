@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const playerEl = document.getElementById('prostream-player');
     if (!playerEl || playerEl.classList.contains('vjs-initialized')) return;
 
-    try {
-        // Initialize Video.js player with simpler configuration
+        try {
+        // Initialize Video.js player with enhanced configuration
         const player = videojs('prostream-player', {
             controls: true,
             autoplay: false,
@@ -17,10 +17,19 @@ document.addEventListener('DOMContentLoaded', () => {
             fluid: true,
             html5: {
                 vhs: {
-                    overrideNative: true
+                    overrideNative: true,
+                    enableLowInitialPlaylist: true,
+                    useDevicePixelRatio: true
                 }
             }
+        }, function() {
+            // Player ready callback
+            this.on('error', function() {
+                const error = this.error();
+                showNotification(`Playback error: ${error ? error.message : 'Unknown error'}`, 'error');
+            });
         });
+
 
         // Setup player features after initialization
         setupPlayerFeatures(player);
@@ -32,10 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function setupPlayerFeatures(player) {
     // DOM Elements
-    const uiElements = {
+        const uiElements = {
         streamUrl: document.getElementById('streamUrl'),
-        playBtn: document.getElementById('playBtn'),
         loadingOverlay: document.getElementById('loadingOverlay'),
+
         qualityBtn: document.getElementById('qualityBtn'),
         subtitlesBtn: document.getElementById('subtitlesBtn'),
         audioBtn: document.getElementById('audioBtn'),
@@ -139,9 +148,8 @@ function setupEventListeners(player, ui) {
     // Auto-play when URL changes (with debounce)
     let playTimeout;
     ui.streamUrl.addEventListener('input', () => {
-        clearTimeout(playTimeout);
         if (ui.streamUrl.value.trim()) {
-            playTimeout = setTimeout(playStream, 800);
+            playStream();
         }
     });
     
